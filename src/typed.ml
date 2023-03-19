@@ -56,8 +56,10 @@ end
 
 module Ntyped = struct
   include F (Nt)
+  include NT
 end
 
 module NOpttyped = struct
   include F (Ntopt)
+  include Ntopt
 end
