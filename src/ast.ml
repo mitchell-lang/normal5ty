@@ -1,7 +1,7 @@
 module Q = Nt.Q
 module Smtty = Nt.Smtty
 
-module T = struct
+module T : T = struct
   include Frontend
   include Nt.T
   open Zzdatatype.Datatype
