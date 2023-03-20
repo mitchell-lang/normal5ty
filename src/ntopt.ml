@@ -48,6 +48,10 @@ let mk_arr ?(lb = None) t1 t2 =
   | Some t1, Some t2 -> Some (Nt.Ty_arrow (lb, t1, t2))
   | _, _ -> None
 
+let mk_tuple ts =
+  let* ts = Sugar.opt_list_to_list_opt ts in
+  Some (Nt.mk_tuple ts)
+
 let get_argty = function
   | Some (Nt.Ty_arrow (_, t1, _)) -> Some t1
   | _ -> _failatwith __FILE__ __LINE__ "?"

@@ -12,6 +12,7 @@ module type T = sig
   val int_ty : t
   val bool_ty : t
   val mk_arr : ?lb:Leff.t -> t -> t -> t
+  val mk_tuple : t list -> t
   val get_argty : t -> t
   val get_retty : t -> t
   val layout : t -> string

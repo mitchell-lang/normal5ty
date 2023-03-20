@@ -73,6 +73,7 @@ let unit_ty = Ty_unit
 let int_ty = Ty_int
 let bool_ty = Ty_bool
 let mk_arr ?(lb = None) t1 t2 = Ty_arrow (lb, t1, t2)
+let mk_tuple ts = Ty_tuple ts
 
 let get_argty = function
   | Ty_arrow (_, t1, _) -> t1
