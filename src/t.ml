@@ -4,7 +4,7 @@ module type T = sig
   val is_basic_tp : t -> bool
   val is_dt : t -> bool
   val eq : t -> t -> bool
-  val destruct_normal_tp : t -> t list * t
+  val destruct_arr_tp : t -> t list * t
   val construct_normal_tp : t list * t -> t
   val to_smtty : t -> Smtty.t
   val default_ty : t

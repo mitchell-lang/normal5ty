@@ -41,12 +41,11 @@ let eq x y =
   in
   aux (x, y)
 
-let destruct_normal_tp tp =
+let destruct_arr_tp tp =
   let rec aux = function
-    | Ty_arrow (None, t1, t2) ->
+    | Ty_arrow (_, t1, t2) ->
         let argsty, bodyty = aux t2 in
         (t1 :: argsty, bodyty)
-    | Ty_arrow (_, _, _) -> _failatwith __FILE__ __LINE__ "?"
     | ty -> ([], ty)
   in
   aux tp

@@ -17,9 +17,9 @@ let eq x y =
   | Some x, Some y -> Nt.eq x y
   | _, _ -> false
 
-let destruct_normal_tp = function
+let destruct_arr_tp = function
   | Some t ->
-      let t1, t2 = Nt.destruct_normal_tp t in
+      let t1, t2 = Nt.destruct_arr_tp t in
       (List.map (fun x -> Some x) t1, Some t2)
   | None -> _failatwith __FILE__ __LINE__ "?"
 
