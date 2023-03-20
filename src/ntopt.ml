@@ -46,7 +46,7 @@ let bool_ty = Some Nt.Ty_bool
 let mk_arr ?(lb = None) t1 t2 =
   match (t1, t2) with
   | Some t1, Some t2 -> Some (Nt.Ty_arrow (lb, t1, t2))
-  | _, _ -> _failatwith __FILE__ __LINE__ "?"
+  | _, _ -> None
 
 let get_argty = function
   | Some (Nt.Ty_arrow (_, t1, _)) -> Some t1
