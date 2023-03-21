@@ -65,4 +65,5 @@ let layout = function None -> "None" | Some t -> Nt.layout t
 let _type_unify file line t1 t2 =
   match (t1, t2) with
   | Some t1, Some t2 -> Some (Nt._type_unify file line t1 t2)
-  | _, _ -> _failatwith __FILE__ __LINE__ "?"
+  | Some t1, None -> Some t1
+  | None, t2 -> t2
