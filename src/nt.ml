@@ -80,6 +80,30 @@ let get_retty = function
   | Ty_arrow (_, _, t2) -> t2
   | _ -> _failatwith __FILE__ __LINE__ "?"
 
+type kind = Nm | Ef | Hd
+
+let get_kind t =
+  let rec aux t =
+    match t with
+    | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_bool | Ty_var _ -> Nm
+    | Ty_constructor (_, ts) -> must_nm ts
+    | Ty_tuple ts -> must_nm ts
+    | Ty_arrow (lb, t1, t2) -> (
+        match (lb, aux t1, aux t2) with
+        | None, Nm, Nm -> Nm
+        | Some Leff.EffArr, Nm, Nm | Some Leff.EffArr, Nm, Ef -> Ef
+        | Some Leff.HdArr, Nm, Nm | Some Leff.HdArr, Nm, Hd -> Hd
+        | _ -> _failatwith __FILE__ __LINE__ "not a well-fromed type")
+  and must_nm ts =
+    let ks = List.map aux ts in
+    if List.for_all (fun x -> match x with Nm -> true | _ -> false) ks then Nm
+    else _failatwith __FILE__ __LINE__ "not a well-fromed type"
+  in
+  aux t
+
+let is_eff_arr t = match get_kind t with Ef -> true | _ -> false
+let is_hd_arr t = match get_kind t with Hd -> true | _ -> false
+
 (* type unification *)
 open Zzdatatype.Datatype
 

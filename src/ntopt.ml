@@ -67,3 +67,6 @@ let _type_unify file line t1 t2 =
   | Some t1, Some t2 -> Some (Nt._type_unify file line t1 t2)
   | Some t1, None -> Some t1
   | None, t2 -> t2
+
+let is_eff_arr = function Some t -> Nt.is_eff_arr t | None -> false
+let is_hd_arr = function Some t -> Nt.is_hd_arr t | None -> false
