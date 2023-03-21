@@ -101,6 +101,7 @@ let _type_unify_ file line m t1 t2 =
   (* let () = Printf.printf "unify %s --> %s\n" (layout t1) (layout t2) in *)
   let rec unify m (t1, t2) =
     let t1 = subst_m m t1 in
+    let t2 = subst_m m t2 in
     (* let () = Printf.printf "one %s --> %s\n" (layout t1) (layout t2) in *)
     match (t1, t2) with
     | Ty_any, _ -> (m, t2)
@@ -113,11 +114,6 @@ let _type_unify_ file line m t1 t2 =
             (m, t2))
     | Ty_constructor (id1, ts1), Ty_constructor (id2, ts2) ->
         let id = _check_equality file line String.equal id1 id2 in
-        (* let () = *)
-        (*   Printf.printf "(%s) v.s. (%s)\n" *)
-        (*     (List.split_by_comma layout ts1) *)
-        (*     (List.split_by_comma layout ts2) *)
-        (* in *)
         let m, ts =
           List.fold_left
             (fun (m, ts) (t1, t2) ->
@@ -130,6 +126,9 @@ let _type_unify_ file line m t1 t2 =
         let m, t1 = unify m (t11, t21) in
         let m, t2 = unify m (t12, t22) in
         (m, Ty_arrow (l1, t1, t2))
+    (* unfold singleton tuple *)
+    | Ty_tuple [ t1 ], _ -> unify m (t1, t2)
+    | _, Ty_tuple [ t2 ] -> unify m (t1, t2)
     | Ty_tuple ts1, Ty_tuple ts2 when List.length ts1 == List.length ts2 ->
         let m, ts =
           List.fold_left
