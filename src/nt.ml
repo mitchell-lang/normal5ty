@@ -8,14 +8,13 @@ type t =
   | Ty_unit
   | Ty_int
   | Ty_bool
-  | Ty_list of t
   | Ty_arrow of Leff.t * t * t
   | Ty_tuple of t list
   | Ty_constructor of (string * t list)
 [@@deriving sexp]
 
 let is_basic_tp = function Ty_unit | Ty_int | Ty_bool -> true | _ -> false
-let is_dt = function Ty_list _ | Ty_constructor _ -> true | _ -> false
+let is_dt = function Ty_constructor _ -> true | _ -> false
 
 let eq x y =
   let rec aux (x, y) =
@@ -26,7 +25,6 @@ let eq x y =
     | Ty_unit, Ty_unit -> true
     | Ty_int, Ty_int -> true
     | Ty_bool, Ty_bool -> true
-    | Ty_list x, Ty_list y -> aux (x, y)
     | Ty_arrow (lx, x, x'), Ty_arrow (ly, y, y') ->
         Leff.eq lx ly && aux (x, y) && aux (x', y')
     | Ty_tuple xs, Ty_tuple ys ->
@@ -58,7 +56,7 @@ let to_smtty t =
   let aux = function
     | Ty_bool -> Smtty.Bool
     | Ty_int -> Smtty.Int
-    | Ty_list _ | Ty_constructor _ -> Smtty.Dt
+    | Ty_constructor _ -> Smtty.Dt
     | _ ->
         let () =
           Printf.printf "t: %s\n" @@ Sexplib.Sexp.to_string @@ sexp_of_t t
@@ -90,7 +88,6 @@ let subst t (id, ty) =
     match t with
     | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_bool -> t
     | Ty_var x -> if String.equal x id then ty else t
-    | Ty_list x -> Ty_list (aux x)
     | Ty_arrow (lb, t1, t2) -> Ty_arrow (lb, aux t1, aux t2)
     | Ty_tuple xs -> Ty_tuple (List.map aux xs)
     | Ty_constructor (id, args) -> Ty_constructor (id, List.map aux args)
@@ -114,9 +111,6 @@ let _type_unify_ file line m t1 t2 =
         | None ->
             let m = StrMap.add n t2 m in
             (m, t2))
-    | Ty_list t1, Ty_list t2 ->
-        let m, t = unify m (t1, t2) in
-        (m, Ty_list t)
     | Ty_constructor (id1, ts1), Ty_constructor (id2, ts2) ->
         let id = _check_equality file line String.equal id1 id2 in
         (* let () = *)
