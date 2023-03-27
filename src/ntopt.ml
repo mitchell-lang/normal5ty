@@ -69,5 +69,21 @@ let __type_unify pprint file line t1 t2 =
   | Some t1, None -> Some t1
   | None, t2 -> t2
 
+let __type_unify_ pprint file line s t1 t2 =
+  let pprint x = pprint (Some x) in
+  let s' =
+    Zzdatatype.Datatype.StrMap.map
+      (fun x ->
+        match x with None -> _failatwith __FILE__ __LINE__ "die" | Some x -> x)
+      s
+  in
+  match (t1, t2) with
+  | Some t1, Some t2 ->
+      let s, t = Nt.__type_unify_ pprint file line s' t1 t2 in
+      let s = Zzdatatype.Datatype.StrMap.map (fun x -> Some x) s in
+      (s, Some t)
+  | Some t1, None -> (s, Some t1)
+  | None, t2 -> (s, t2)
+
 let is_eff_arr = function Some t -> Nt.is_eff_arr t | None -> false
 let is_hd_arr = function Some t -> Nt.is_hd_arr t | None -> false

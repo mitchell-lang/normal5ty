@@ -44,6 +44,7 @@ module Nt = struct
   let layout_coretype = Frontend.layout_
   let of_string = Frontend.of_string
   let _type_unify = __type_unify Frontend.layout
+  let _type_unify_ = __type_unify_ Frontend.layout
 end
 
 module Ntopt = struct
@@ -56,6 +57,10 @@ module Ntopt = struct
 
   let _type_unify =
     __type_unify (fun x ->
+        match x with None -> "None" | Some x -> Frontend.layout x)
+
+  let _type_unify_ =
+    __type_unify_ (fun x ->
         match x with None -> "None" | Some x -> Frontend.layout x)
 end
 
