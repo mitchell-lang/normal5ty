@@ -16,7 +16,7 @@ module type T = sig
   val get_argty : t -> t
   val get_retty : t -> t
   val layout : t -> string
-  val __type_unify : (t -> string) -> string -> int -> t -> t -> t
+  val _type_unify : string -> int -> t -> t -> t
   val is_eff_arr : t -> bool
   val is_hd_arr : t -> bool
 end
