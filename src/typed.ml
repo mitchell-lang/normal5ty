@@ -43,6 +43,7 @@ module Nt = struct
   let layout_l = Frontend.layout_l
   let layout_coretype = Frontend.layout_
   let of_string = Frontend.of_string
+  let _type_unify = __type_unify Frontend.layout
 end
 
 module Ntopt = struct
@@ -52,6 +53,10 @@ module Ntopt = struct
   let layout_l l = Zzdatatype.Datatype.List.split_by_comma layout l
   let layout_coretype = Frontend.layout_
   let of_string = Some Frontend.of_string
+
+  let _type_unify =
+    __type_unify (fun x ->
+        match x with None -> "None" | Some x -> Frontend.layout x)
 end
 
 module Ntyped = struct

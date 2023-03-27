@@ -62,9 +62,10 @@ let get_retty = function
 
 let layout = function None -> "None" | Some t -> Nt.layout t
 
-let _type_unify file line t1 t2 =
+let __type_unify pprint file line t1 t2 =
+  let pprint x = pprint (Some x) in
   match (t1, t2) with
-  | Some t1, Some t2 -> Some (Nt._type_unify file line t1 t2)
+  | Some t1, Some t2 -> Some (Nt.__type_unify pprint file line t1 t2)
   | Some t1, None -> Some t1
   | None, t2 -> t2
 

@@ -121,7 +121,7 @@ let subst t (id, ty) =
 let subst_m m t = StrMap.fold (fun id ty t -> subst t (id, ty)) m t
 let layout t = Sexplib.Sexp.to_string @@ sexp_of_t t
 
-let _type_unify_ file line m t1 t2 =
+let _type_unify_ (pprint : t -> string) file line m t1 t2 =
   (* let () = Printf.printf "unify %s --> %s\n" (layout t1) (layout t2) in *)
   let rec unify m (t1, t2) =
     let t1 = subst_m m t1 in
@@ -176,8 +176,9 @@ let _type_unify_ file line m t1 t2 =
   in
   try unify m (t1, t2)
   with e ->
-    Printf.printf "Type unify error: %s ==> %s\n" (layout t1) (layout t2);
+    Printf.printf "Type unify error: %s ==> %s\n" (pprint t1) (pprint t2);
+    Printf.printf "Precisely: %s ==> %s\n" (layout t1) (layout t2);
     raise e
 
-let _type_unify file line t1 t2 =
-  snd @@ _type_unify_ file line StrMap.empty t1 t2
+let __type_unify pprint file line t1 t2 =
+  snd @@ _type_unify_ pprint file line StrMap.empty t1 t2
