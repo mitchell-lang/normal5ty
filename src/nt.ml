@@ -16,6 +16,14 @@ type t =
 let is_basic_tp = function Ty_unit | Ty_int | Ty_bool -> true | _ -> false
 let is_dt = function Ty_constructor _ -> true | _ -> false
 
+let fst_ty = function
+  | Ty_tuple [ a; _ ] -> a
+  | _ -> _failatwith __FILE__ __LINE__ "fst_ty"
+
+let snd_ty = function
+  | Ty_tuple [ _; a ] -> a
+  | _ -> _failatwith __FILE__ __LINE__ "snd_ty"
+
 let eq x y =
   let rec aux (x, y) =
     match (x, y) with

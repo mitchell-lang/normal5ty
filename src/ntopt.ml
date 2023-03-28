@@ -52,6 +52,9 @@ let mk_tuple ts =
   let* ts = Sugar.opt_list_to_list_opt ts in
   Some (Nt.mk_tuple ts)
 
+let fst_ty = function None -> None | Some ty -> Some (Nt.fst_ty ty)
+let snd_ty = function None -> None | Some ty -> Some (Nt.snd_ty ty)
+
 let get_argty = function
   | Some (Nt.Ty_arrow (_, t1, _)) -> Some t1
   | _ -> _failatwith __FILE__ __LINE__ "?"
