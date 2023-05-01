@@ -1,5 +1,5 @@
 module T = Nt
-open Ocaml_parser
+open Ocaml5_parser
 open Parsetree
 open Sugar
 
