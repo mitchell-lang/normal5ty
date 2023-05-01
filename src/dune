@@ -3,7 +3,7 @@
  (name normal5ty)
  (wrapped false)
  (modules_without_implementation)
- (libraries utils core ocaml_parser)
+ (libraries utils core ocaml5_parser)
  (modules
    q
    smtty
