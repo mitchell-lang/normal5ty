@@ -1,13 +1,12 @@
 (library
- (public_name normalty)
- (name normalty)
+ (public_name normal5ty)
+ (name normal5ty)
  (wrapped false)
  (modules_without_implementation)
  (libraries utils core ocaml_parser)
  (modules
    q
    smtty
-   leff
    t
    nt
    ntopt

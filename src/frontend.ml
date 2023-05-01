@@ -16,21 +16,6 @@ let desc_to_ct t =
     ptyp_attributes = [];
   }
 
-let arg_label_to_leff t =
-  let open Asttypes in
-  match t with
-  | Nolabel -> None
-  | Labelled "eff" -> Some Leff.EffArr
-  | Labelled "hd" -> Some Leff.HdArr
-  | _ -> _failatwith __FILE__ __LINE__ "?"
-
-let leff_to_arg_label t =
-  let open Asttypes in
-  match t with
-  | None -> Nolabel
-  | Some Leff.EffArr -> Labelled "eff"
-  | Some Leff.HdArr -> Labelled "hd"
-
 let rec core_type_to_t ct = core_type_desc_to_t ct.ptyp_desc
 (* let t = core_type_desc_to_t ct.ptyp_desc in *)
 (* match t with *)
@@ -55,8 +40,7 @@ and core_type_desc_to_t t =
       _failatwith __FILE__ __LINE__
         (spf "unimp: poly: %s" @@ layout_ @@ desc_to_ct t)
   | Ptyp_var name -> T.Ty_var name
-  | Ptyp_arrow (label, t1, t2) ->
-      T.Ty_arrow (arg_label_to_leff label, core_type_to_t t1, core_type_to_t t2)
+  | Ptyp_arrow (_, t1, t2) -> T.Ty_arrow (core_type_to_t t1, core_type_to_t t2)
   | Ptyp_tuple ts -> T.Ty_tuple (List.map core_type_to_t ts)
   | Ptyp_constr (lc, ts) -> (
       match (Longident.flatten lc.txt, ts) with
@@ -89,9 +73,8 @@ and t_to_core_type_desc t =
     | T.Ty_int -> mk0 "int"
     (* | T.Ty_list t -> mk1 "list" (t_to_core_type t) *)
     | T.Ty_tuple t -> Ptyp_tuple (List.map t_to_core_type t)
-    | T.Ty_arrow (label, t1, t2) ->
-        Ptyp_arrow
-          (leff_to_arg_label label, t_to_core_type t1, t_to_core_type t2)
+    | T.Ty_arrow (t1, t2) ->
+        Ptyp_arrow (Asttypes.Nolabel, t_to_core_type t1, t_to_core_type t2)
     | Ty_constructor (id, args) ->
         Ptyp_constr
           ( (Location.mknoloc
@@ -110,11 +93,5 @@ let layout_l ts = Zzdatatype.Datatype.List.split_by_comma layout ts
 (* let%test "rev" = List.equal Int.equal (List.rev [ 3; 2; 1 ]) [ 1; 2 ] *)
 let%test "parse1" = T.eq T.int_ty (of_string "int")
 let%test "parse2" = T.eq T.bool_ty (of_string "bool")
-
-let%test "parse3" =
-  T.eq
-    T.(mk_arr ~lb:(Some Leff.EffArr) bool_ty int_ty)
-    (of_string "eff:bool -> int")
-
-let%test "parse4" =
-  T.eq T.(mk_arr ~lb:None bool_ty int_ty) (of_string "bool -> int")
+let%test "parse3" = T.eq T.(mk_arr bool_ty int_ty) (of_string "bool -> int")
+let%test "parse4" = T.eq T.(mk_arr bool_ty int_ty) (of_string "bool -> int")

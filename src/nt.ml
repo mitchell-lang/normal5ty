@@ -8,7 +8,7 @@ type t =
   | Ty_unit
   | Ty_int
   | Ty_bool
-  | Ty_arrow of Leff.t * t * t
+  | Ty_arrow of t * t
   | Ty_tuple of t list
   | Ty_constructor of (string * t list)
 [@@deriving sexp]
@@ -33,8 +33,7 @@ let eq x y =
     | Ty_unit, Ty_unit -> true
     | Ty_int, Ty_int -> true
     | Ty_bool, Ty_bool -> true
-    | Ty_arrow (lx, x, x'), Ty_arrow (ly, y, y') ->
-        Leff.eq lx ly && aux (x, y) && aux (x', y')
+    | Ty_arrow (x, x'), Ty_arrow (y, y') -> aux (x, y) && aux (x', y')
     | Ty_tuple xs, Ty_tuple ys ->
         if List.length xs == List.length ys then
           List.for_all aux @@ List.combine xs ys
@@ -49,16 +48,16 @@ let eq x y =
 
 let destruct_arr_tp tp =
   let rec aux = function
-    | Ty_arrow (_, t1, t2) ->
+    | Ty_arrow (t1, t2) ->
         let argsty, bodyty = aux t2 in
         (t1 :: argsty, bodyty)
     | ty -> ([], ty)
   in
   aux tp
 
-let rec construct_normal_tp = function
+let rec construct_arr_tp = function
   | [], retty -> retty
-  | h :: t, retty -> Ty_arrow (None, h, construct_normal_tp (t, retty))
+  | h :: t, retty -> Ty_arrow (h, construct_arr_tp (t, retty))
 
 let to_smtty t =
   let aux = function
@@ -77,40 +76,16 @@ let default_ty = Ty_unknown
 let unit_ty = Ty_unit
 let int_ty = Ty_int
 let bool_ty = Ty_bool
-let mk_arr ?(lb = None) t1 t2 = Ty_arrow (lb, t1, t2)
+let mk_arr t1 t2 = Ty_arrow (t1, t2)
 let mk_tuple ts = Ty_tuple ts
 
 let get_argty = function
-  | Ty_arrow (_, t1, _) -> t1
+  | Ty_arrow (t1, _) -> t1
   | _ -> _failatwith __FILE__ __LINE__ "?"
 
 let get_retty = function
-  | Ty_arrow (_, _, t2) -> t2
+  | Ty_arrow (_, t2) -> t2
   | _ -> _failatwith __FILE__ __LINE__ "?"
-
-type kind = Nm | Ef | Hd
-
-let get_kind t =
-  let rec aux t =
-    match t with
-    | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_bool | Ty_var _ -> Nm
-    | Ty_constructor (_, ts) -> must_nm ts
-    | Ty_tuple ts -> must_nm ts
-    | Ty_arrow (lb, t1, t2) -> (
-        match (lb, aux t1, aux t2) with
-        | None, Nm, Nm -> Nm
-        | Some Leff.EffArr, Nm, Nm | Some Leff.EffArr, Nm, Ef -> Ef
-        | Some Leff.HdArr, Nm, Nm | Some Leff.HdArr, Nm, Hd -> Hd
-        | _ -> _failatwith __FILE__ __LINE__ "not a well-fromed type")
-  and must_nm ts =
-    let ks = List.map aux ts in
-    if List.for_all (fun x -> match x with Nm -> true | _ -> false) ks then Nm
-    else _failatwith __FILE__ __LINE__ "not a well-fromed type"
-  in
-  aux t
-
-let is_eff_arr t = match get_kind t with Ef -> true | _ -> false
-let is_hd_arr t = match get_kind t with Hd -> true | _ -> false
 
 (* type unification *)
 open Zzdatatype.Datatype
@@ -120,7 +95,7 @@ let subst t (id, ty) =
     match t with
     | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_bool -> t
     | Ty_var x -> if String.equal x id then ty else t
-    | Ty_arrow (lb, t1, t2) -> Ty_arrow (lb, aux t1, aux t2)
+    | Ty_arrow (t1, t2) -> Ty_arrow (aux t1, aux t2)
     | Ty_tuple xs -> Ty_tuple (List.map aux xs)
     | Ty_constructor (id, args) -> Ty_constructor (id, List.map aux args)
   in
@@ -154,10 +129,10 @@ let __type_unify_ (pprint : t -> string) file line m t1 t2 =
             (m, []) (List.combine ts1 ts2)
         in
         (m, Ty_constructor (id, ts))
-    | Ty_arrow (l1, t11, t12), Ty_arrow (l2, t21, t22) when Leff.eq l1 l2 ->
+    | Ty_arrow (t11, t12), Ty_arrow (t21, t22) ->
         let m, t1 = unify m (t11, t21) in
         let m, t2 = unify m (t12, t22) in
-        (m, Ty_arrow (l1, t1, t2))
+        (m, Ty_arrow (t1, t2))
     (* unfold singleton tuple *)
     | Ty_tuple [ t1 ], _ -> unify m (t1, t2)
     | _, Ty_tuple [ t2 ] -> unify m (t1, t2)

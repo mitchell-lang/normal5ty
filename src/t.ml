@@ -5,13 +5,12 @@ module type T = sig
   val is_dt : t -> bool
   val eq : t -> t -> bool
   val destruct_arr_tp : t -> t list * t
-  val construct_normal_tp : t list * t -> t
+  val construct_arr_tp : t list * t -> t
   val to_smtty : t -> Smtty.t
   val default_ty : t
   val unit_ty : t
   val int_ty : t
   val bool_ty : t
-  val mk_arr : ?lb:Leff.t -> t -> t -> t
   val mk_tuple : t list -> t
   val fst_ty : t -> t
   val snd_ty : t -> t
@@ -28,6 +27,4 @@ module type T = sig
     t Zzdatatype.Datatype.StrMap.t * t
 
   val _type_unify : string -> int -> t -> t -> t
-  val is_eff_arr : t -> bool
-  val is_hd_arr : t -> bool
 end

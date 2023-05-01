@@ -1,6 +1,6 @@
 (lang dune 3.1)
 
-(name normalty)
+(name normal5ty)
 
 (generate_opam_files true)
 
@@ -16,7 +16,7 @@
 (documentation https://url/to/documentation)
 
 (package
- (name normalty)
+ (name normal5ty)
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends ocaml dune)

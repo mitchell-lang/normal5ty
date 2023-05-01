@@ -23,7 +23,7 @@ let destruct_arr_tp = function
       (List.map (fun x -> Some x) t1, Some t2)
   | None -> _failatwith __FILE__ __LINE__ "?"
 
-let construct_normal_tp (t1, t2) =
+let construct_arr_tp (t1, t2) =
   let t1 =
     List.map
       (fun x ->
@@ -31,7 +31,7 @@ let construct_normal_tp (t1, t2) =
       t1
   in
   match t2 with
-  | Some t2 -> Some (Nt.construct_normal_tp (t1, t2))
+  | Some t2 -> Some (Nt.construct_arr_tp (t1, t2))
   | _ -> _failatwith __FILE__ __LINE__ "?"
 
 let to_smtty = function
@@ -43,9 +43,9 @@ let unit_ty = Some Nt.Ty_unit
 let int_ty = Some Nt.Ty_int
 let bool_ty = Some Nt.Ty_bool
 
-let mk_arr ?(lb = None) t1 t2 =
+let mk_arr t1 t2 =
   match (t1, t2) with
-  | Some t1, Some t2 -> Some (Nt.Ty_arrow (lb, t1, t2))
+  | Some t1, Some t2 -> Some (Nt.Ty_arrow (t1, t2))
   | _, _ -> None
 
 let mk_tuple ts =
@@ -56,11 +56,11 @@ let fst_ty = function None -> None | Some ty -> Some (Nt.fst_ty ty)
 let snd_ty = function None -> None | Some ty -> Some (Nt.snd_ty ty)
 
 let get_argty = function
-  | Some (Nt.Ty_arrow (_, t1, _)) -> Some t1
+  | Some (Nt.Ty_arrow (t1, _)) -> Some t1
   | _ -> _failatwith __FILE__ __LINE__ "?"
 
 let get_retty = function
-  | Some (Nt.Ty_arrow (_, _, t2)) -> Some t2
+  | Some (Nt.Ty_arrow (_, t2)) -> Some t2
   | _ -> _failatwith __FILE__ __LINE__ "?"
 
 let layout = function None -> "None" | Some t -> Nt.layout t
@@ -87,6 +87,3 @@ let __type_unify_ pprint file line s t1 t2 =
       (s, Some t)
   | Some t1, None -> (s, Some t1)
   | None, t2 -> (s, t2)
-
-let is_eff_arr = function Some t -> Nt.is_eff_arr t | None -> false
-let is_hd_arr = function Some t -> Nt.is_hd_arr t | None -> false
