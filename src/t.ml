@@ -6,6 +6,7 @@ module type T = sig
   val eq : t -> t -> bool
   val destruct_arr_tp : t -> t list * t
   val construct_arr_tp : t list * t -> t
+  val mk_arr : t -> t -> t
   val to_smtty : t -> Smtty.t
   val default_ty : t
   val unit_ty : t
