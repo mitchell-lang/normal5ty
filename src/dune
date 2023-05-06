@@ -5,7 +5,7 @@
  (modules_without_implementation)
  (libraries utils core ocaml5_parser)
  (modules
-   q
+   qn
    smtty
    t
    nt
