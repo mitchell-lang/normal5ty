@@ -47,6 +47,7 @@ and core_type_desc_to_t t =
       | [ "unit" ], [] -> T.Ty_unit
       | [ "bool" ], [] -> T.Ty_bool
       | [ "int" ], [] -> T.Ty_int
+      | [ "nat" ], [] -> T.Ty_nat
       (* | [ "list" ], [ t ] -> T.Ty_constructor ("list", [ core_type_to_t t ]) *)
       | [ c ], args -> T.Ty_constructor (c, List.map core_type_to_t args)
       | _, _ -> failwith @@ Printf.sprintf "un-imp: %s" (layout_ @@ desc_to_ct t)
@@ -71,6 +72,7 @@ and t_to_core_type_desc t =
     | T.Ty_unit -> mk0 "unit"
     | T.Ty_bool -> mk0 "bool"
     | T.Ty_int -> mk0 "int"
+    | T.Ty_nat -> mk0 "nat"
     (* | T.Ty_list t -> mk1 "list" (t_to_core_type t) *)
     | T.Ty_tuple t -> Ptyp_tuple (List.map t_to_core_type t)
     | T.Ty_arrow (t1, t2) ->

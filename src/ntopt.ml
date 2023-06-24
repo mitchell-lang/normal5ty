@@ -41,6 +41,7 @@ let to_smtty = function
 let default_ty = None
 let unit_ty = Some Nt.Ty_unit
 let int_ty = Some Nt.Ty_int
+let nat_ty = Some Nt.Ty_nat
 let bool_ty = Some Nt.Ty_bool
 
 let mk_arr t1 t2 =

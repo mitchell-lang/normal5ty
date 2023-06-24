@@ -11,6 +11,7 @@ module type T = sig
   val default_ty : t
   val unit_ty : t
   val int_ty : t
+  val nat_ty : t
   val bool_ty : t
   val mk_tuple : t list -> t
   val fst_ty : t -> t

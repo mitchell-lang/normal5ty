@@ -7,13 +7,17 @@ type t =
   | Ty_var of string (* parsing only *)
   | Ty_unit
   | Ty_int
+  | Ty_nat
   | Ty_bool
   | Ty_arrow of t * t
   | Ty_tuple of t list
   | Ty_constructor of (string * t list)
 [@@deriving sexp]
 
-let is_basic_tp = function Ty_unit | Ty_int | Ty_bool -> true | _ -> false
+let is_basic_tp = function
+  | Ty_unit | Ty_int | Ty_nat | Ty_bool -> true
+  | _ -> false
+
 let is_dt = function Ty_constructor _ -> true | _ -> false
 
 let fst_ty = function
@@ -32,6 +36,7 @@ let eq x y =
     | Ty_var x, Ty_var y -> String.equal x y
     | Ty_unit, Ty_unit -> true
     | Ty_int, Ty_int -> true
+    | Ty_nat, Ty_nat -> true
     | Ty_bool, Ty_bool -> true
     | Ty_arrow (x, x'), Ty_arrow (y, y') -> aux (x, y) && aux (x', y')
     | Ty_tuple xs, Ty_tuple ys ->
@@ -63,6 +68,7 @@ let to_smtty t =
   let aux = function
     | Ty_bool -> Smtty.Bool
     | Ty_int -> Smtty.Int
+    | Ty_nat -> Smtty.Int
     | Ty_constructor _ -> Smtty.Dt
     | _ ->
         let () =
@@ -75,6 +81,7 @@ let to_smtty t =
 let default_ty = Ty_unknown
 let unit_ty = Ty_unit
 let int_ty = Ty_int
+let nat_ty = Ty_nat
 let bool_ty = Ty_bool
 let mk_arr t1 t2 = Ty_arrow (t1, t2)
 let mk_tuple ts = Ty_tuple ts
@@ -93,7 +100,7 @@ open Zzdatatype.Datatype
 let subst t (id, ty) =
   let rec aux t =
     match t with
-    | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_bool -> t
+    | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_nat | Ty_bool -> t
     | Ty_var x -> if String.equal x id then ty else t
     | Ty_arrow (t1, t2) -> Ty_arrow (aux t1, aux t2)
     | Ty_tuple xs -> Ty_tuple (List.map aux xs)
