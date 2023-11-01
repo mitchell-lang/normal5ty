@@ -11,11 +11,12 @@ type t =
   | Ty_bool
   | Ty_arrow of t * t
   | Ty_tuple of t list
+  | Ty_uninter of string
   | Ty_constructor of (string * t list)
 [@@deriving sexp]
 
 let is_basic_tp = function
-  | Ty_unit | Ty_int | Ty_nat | Ty_bool -> true
+  | Ty_unit | Ty_int | Ty_nat | Ty_bool | Ty_uninter _ -> true
   | _ -> false
 
 let is_dt = function Ty_constructor _ -> true | _ -> false
@@ -38,6 +39,7 @@ let eq x y =
     | Ty_int, Ty_int -> true
     | Ty_nat, Ty_nat -> true
     | Ty_bool, Ty_bool -> true
+    | Ty_uninter name1, Ty_uninter name2 -> String.equal name1 name2
     | Ty_arrow (x, x'), Ty_arrow (y, y') -> aux (x, y) && aux (x', y')
     | Ty_tuple xs, Ty_tuple ys ->
         if List.length xs == List.length ys then
@@ -83,6 +85,7 @@ let unit_ty = Ty_unit
 let int_ty = Ty_int
 let nat_ty = Ty_nat
 let bool_ty = Ty_bool
+let uninter_ty name = Ty_uninter name
 let mk_arr t1 t2 = Ty_arrow (t1, t2)
 let mk_tuple ts = Ty_tuple ts
 
@@ -100,7 +103,9 @@ open Zzdatatype.Datatype
 let subst t (id, ty) =
   let rec aux t =
     match t with
-    | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_nat | Ty_bool -> t
+    | Ty_unknown | Ty_any | Ty_unit | Ty_int | Ty_nat | Ty_bool | Ty_uninter _
+      ->
+        t
     | Ty_var x -> if String.equal x id then ty else t
     | Ty_arrow (t1, t2) -> Ty_arrow (aux t1, aux t2)
     | Ty_tuple xs -> Ty_tuple (List.map aux xs)

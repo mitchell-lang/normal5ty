@@ -48,10 +48,12 @@ and core_type_desc_to_t t =
       | [ "bool" ], [] -> T.Ty_bool
       | [ "int" ], [] -> T.Ty_int
       | [ "nat" ], [] -> T.Ty_nat
+      | cs, [] ->
+          T.Ty_uninter (Zzdatatype.Datatype.List.split_by "." (fun x -> x) cs)
       (* | [ "list" ], [ t ] -> T.Ty_constructor ("list", [ core_type_to_t t ]) *)
       | [ c ], args -> T.Ty_constructor (c, List.map core_type_to_t args)
-      | _, _ -> failwith @@ Printf.sprintf "un-imp: %s" (layout_ @@ desc_to_ct t)
-      )
+      | _, _ ->
+          failwith @@ Printf.sprintf "--un-imp: %s" (layout_ @@ desc_to_ct t))
 
 let rec t_to_core_type t = desc_to_ct (t_to_core_type_desc t)
 
@@ -73,6 +75,7 @@ and t_to_core_type_desc t =
     | T.Ty_bool -> mk0 "bool"
     | T.Ty_int -> mk0 "int"
     | T.Ty_nat -> mk0 "nat"
+    | T.Ty_uninter name -> mk0 name
     (* | T.Ty_list t -> mk1 "list" (t_to_core_type t) *)
     | T.Ty_tuple t -> Ptyp_tuple (List.map t_to_core_type t)
     | T.Ty_arrow (t1, t2) ->
@@ -97,3 +100,5 @@ let%test "parse1" = T.eq T.int_ty (of_string "int")
 let%test "parse2" = T.eq T.bool_ty (of_string "bool")
 let%test "parse3" = T.eq T.(mk_arr bool_ty int_ty) (of_string "bool -> int")
 let%test "parse4" = T.eq T.(mk_arr bool_ty int_ty) (of_string "bool -> int")
+let%test "parse5" = T.eq T.(uninter_ty "path") (of_string "path")
+let%test "parse6" = T.eq T.(uninter_ty "Path.t") (of_string "Path.t")
